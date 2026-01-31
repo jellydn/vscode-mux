@@ -1,5 +1,5 @@
 import type { IMuxLauncher } from './types';
-import { run, shellEscape } from '../utils';
+import { checkBinaryExists, run, shellEscape } from '../utils';
 
 export class TmuxLauncher implements IMuxLauncher {
   buildCommand(sessionName: string, cwd: string, autoAttach: boolean): string {
@@ -25,11 +25,6 @@ export class TmuxLauncher implements IMuxLauncher {
   }
 
   async checkInstalled(): Promise<boolean> {
-    try {
-      await run('which', ['tmux']);
-      return true;
-    } catch {
-      return false;
-    }
+    return checkBinaryExists('tmux');
   }
 }

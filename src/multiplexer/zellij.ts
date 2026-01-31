@@ -1,4 +1,4 @@
-import { run, shellEscape } from '../utils';
+import { checkBinaryExists, run, shellEscape } from '../utils';
 import type { IMuxLauncher } from './types';
 
 export class ZellijLauncher implements IMuxLauncher {
@@ -24,11 +24,6 @@ export class ZellijLauncher implements IMuxLauncher {
   }
 
   async checkInstalled(): Promise<boolean> {
-    try {
-      await run('which', ['zellij']);
-      return true;
-    } catch {
-      return false;
-    }
+    return checkBinaryExists('zellij');
   }
 }
