@@ -41,7 +41,3 @@ export async function getUniqueSessionName(baseName: string, launcher: IMuxLaunc
   return `${baseName}-${suffix}`;
 }
 
-export async function findMatchingSession(baseName: string, launcher: IMuxLauncher): Promise<string | null> {
-  const sessions = await launcher.listSessions();
-  return sessions.includes(baseName) ? baseName : null;
-}
