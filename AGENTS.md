@@ -1,6 +1,6 @@
 # AGENTS.md - CodeMux Development Guide
 
-CodeMux is a VS Code extension integrating terminal multiplexers (tmux/zellij). Built with TypeScript, reactive-vscode, and tsdown.
+CodeMux is a VS Code extension integrating terminal multiplexers (tmux/zellij). Built with TypeScript, reactive-vscode, and tsdown. Uses **bun** for package management.
 
 ## Build Commands
 
@@ -11,8 +11,8 @@ CodeMux is a VS Code extension integrating terminal multiplexers (tmux/zellij). 
 | `nr typecheck` | TypeScript check without emit |
 | `nr lint` | Lint with Biome |
 | `nr format` | Format with Biome |
-| `nr test` | Run Vitest suite |
-| `nr test -- <pattern>` | Run tests matching pattern |
+| `nr test` | Run all tests |
+| `nr test -- test/session-manager.test.ts` | Run single test file |
 | `nr test -- --reporter=verbose` | Verbose test output |
 | `nr update` | Regenerate `src/generated/meta.ts` |
 | `nr ext:package` | Create VSIX package |
@@ -84,7 +84,7 @@ src/
 └── generated/
     └── meta.ts       # Auto-generated (run `nr update`)
 test/
-└── index.test.ts     # Vitest suite
+└── session-manager.test.ts  # Vitest suite
 ```
 
 ## Testing
@@ -125,10 +125,13 @@ Press F5 to launch extension host; rebuild with `nr dev`
 | `vitest` | Testing framework |
 | `@biomejs/biome` | Linting + formatting |
 | `@antfu/ni` | Script runner (`nr`) |
+| `bun` | Package manager |
 
 ## Key Files
 
-- `package.json:110-122` - npm scripts
+- `package.json` - npm scripts, extension manifest
 - `tsconfig.json` - TypeScript config
 - `biome.json` - Biome config
 - `.vscode/settings.json` - IDE settings
+- `src/index.ts` - Extension entry point
+- `src/config.ts` - Configuration definitions

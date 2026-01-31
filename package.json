@@ -4,7 +4,7 @@
   "displayName": "vscode-mux",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "bun@1.x",
   "description": "Integrate VS Code terminal with tmux or zellij for seamless multiplexing",
   "author": "Dung Huynh Duc <dung@productsway.com>",
   "license": "MIT",
@@ -34,7 +34,8 @@
     "vscode": "^1.97.0"
   },
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onTerminalProfile:codemux"
   ],
   "contributes": {
     "commands": [
@@ -88,24 +89,12 @@
       }
     },
     "terminal": {
-      "profiles": {
-        "osx": [
-          {
-            "id": "codemux",
-            "configuration": {
-              "require": "jellydn.vscode-mux"
-            }
-          }
-        ],
-        "linux": [
-          {
-            "id": "codemux",
-            "configuration": {
-              "require": "jellydn.vscode-mux"
-            }
-          }
-        ]
-      }
+      "profiles": [
+        {
+          "title": "CodeMux",
+          "id": "codemux"
+        }
+      ]
     }
   },
   "scripts": {
