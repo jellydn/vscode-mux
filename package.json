@@ -69,6 +69,26 @@
           "description": "Automatically attach to existing session"
         }
       }
+    },
+    "terminal": {
+      "profiles": {
+        "osx": [
+          {
+            "id": "codemux",
+            "configuration": {
+              "require": "jellydn.code-mux"
+            }
+          }
+        ],
+        "linux": [
+          {
+            "id": "codemux",
+            "configuration": {
+              "require": "jellydn.code-mux"
+            }
+          }
+        ]
+      }
     }
   },
   "scripts": {
