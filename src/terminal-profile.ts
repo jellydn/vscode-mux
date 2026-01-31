@@ -3,14 +3,12 @@ import { cwd, env } from 'node:process';
 import { type Terminal, TerminalProfile, window, workspace } from 'vscode';
 
 import { getLauncher } from './multiplexer';
-import { findMatchingSession, getSessionName, getUniqueSessionName } from './session-manager';
-import { logger } from './utils';
+import { getSessionName, getUniqueSessionName } from './session-manager';
+import { isWindows, logger } from './utils';
 
 export const SESSION_NAME_PREFIX = 'CodeMux: ';
 
 const LOGIN_SHELLS = new Set(['bash', 'zsh', 'fish', 'sh']);
-let cachedSessionName: string | undefined;
-let cachedBaseName: string | undefined;
 
 interface CodemuxConfig {
   multiplexer: 'tmux' | 'zellij';
@@ -18,6 +16,7 @@ interface CodemuxConfig {
   strategy: 'workspace' | 'folder' | 'custom';
   customName: string;
   attachIfExists: boolean;
+  windowsSupport: 'disabled' | 'enabled';
 }
 
 function getConfig(): CodemuxConfig {
@@ -27,64 +26,95 @@ function getConfig(): CodemuxConfig {
     autoAttach: codemuxConfig.get('autoAttach', true),
     strategy: codemuxConfig.get('sessionNameStrategy', 'workspace'),
     customName: codemuxConfig.get('customSessionName', ''),
-    attachIfExists: codemuxConfig.get('attachIfExists', true)
+    attachIfExists: codemuxConfig.get('attachIfExists', true),
+    windowsSupport: codemuxConfig.get('windowsSupport', 'disabled')
   };
 }
 
 function getShellArgs(shellPath: string, command: string): string[] {
+  if (isWindows()) {
+    const isPowershell = shellPath.toLowerCase().includes('powershell');
+    if (isPowershell) return ['-NoLogo', '-NoProfile', '-Command', command];
+    return ['/c', command];
+  }
+
   const shellName = basename(shellPath);
   if (LOGIN_SHELLS.has(shellName)) return ['-l', '-c', command];
   return ['-c', command];
 }
 
+function resolveShellPath(): string {
+  if (isWindows()) return env.COMSPEC || 'cmd.exe';
+  return env.SHELL || '/bin/bash';
+}
+
+function getFolderPath(): string | undefined {
+  return workspace.workspaceFolders?.[0]?.uri.fsPath;
+}
+
+function getBaseSessionName(strategy: CodemuxConfig['strategy'], customName: string): string {
+  return getSessionName(strategy, {
+    workspaceName: workspace.name || undefined,
+    folderPath: getFolderPath(),
+    customName
+  });
+}
+
 async function resolveSessionName(
   baseName: string,
   launcher: ReturnType<typeof getLauncher>,
-  autoAttach: boolean
+  autoAttach: boolean,
+  attachIfExists: boolean
 ): Promise<string> {
   if (!autoAttach) return getUniqueSessionName(baseName, launcher);
 
-  if (cachedSessionName && cachedBaseName === baseName) return cachedSessionName;
+  if (attachIfExists) {
+    const sessions = await launcher.listSessions();
+    if (sessions.includes(baseName)) return baseName;
+  }
 
-  const uniqueName = await getUniqueSessionName(baseName, launcher);
-  cachedSessionName = uniqueName;
-  cachedBaseName = baseName;
-  return uniqueName;
+  return getUniqueSessionName(baseName, launcher);
+}
+
+async function checkMultiplexer(config: CodemuxConfig): Promise<ReturnType<typeof getLauncher> | null> {
+  if (isWindows() && config.windowsSupport === 'disabled') {
+    showWindowsDisabledNotification();
+    return null;
+  }
+
+  const launcher = getLauncher(config.multiplexer);
+  const installed = await launcher.checkInstalled();
+
+  if (!installed) {
+    logger.info(`${config.multiplexer} not found, falling back to shell`);
+    void showMissingMultiplexerNotification(config.multiplexer);
+    return null;
+  }
+
+  return launcher;
 }
 
 export function createTerminalProfileProvider() {
   return {
     async provideTerminalProfile() {
-      const shellPath = env.SHELL || '/bin/bash';
+      const shellPath = resolveShellPath();
 
       try {
-        const { multiplexer, autoAttach, strategy, customName } = getConfig();
+        const config = getConfig();
+        const launcher = await checkMultiplexer(config);
+        if (!launcher) return new TerminalProfile({ shellPath });
 
-        const launcher = getLauncher(multiplexer);
-        const installed = await launcher.checkInstalled();
+        const folderPath = getFolderPath() || cwd();
+        const baseName = getBaseSessionName(config.strategy, config.customName);
+        const sessionName = await resolveSessionName(baseName, launcher, config.autoAttach, config.attachIfExists);
 
-        if (!installed) {
-          logger.info(`${multiplexer} not found, falling back to shell`);
-          void showMissingMultiplexerNotification(multiplexer);
-          return new TerminalProfile({ shellPath });
-        }
-
-        const folderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
-        const baseName = getSessionName(strategy, {
-          workspaceName: workspace.name || undefined,
-          folderPath,
-          customName
-        });
-
-        const sessionName = await resolveSessionName(baseName, launcher, autoAttach);
-        const workspaceCwd = folderPath || cwd();
-        const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
+        const command = launcher.buildCommand(sessionName, folderPath, config.autoAttach);
 
         return new TerminalProfile({
           name: `${SESSION_NAME_PREFIX}${sessionName}`,
           shellPath,
           shellArgs: getShellArgs(shellPath, command),
-          cwd: workspaceCwd
+          cwd: folderPath
         });
       } catch (error) {
         logger.error('Failed to create terminal profile', error);
@@ -113,7 +143,7 @@ export async function handleKillSession(): Promise<void> {
   }
 }
 
-async function resolveKillTargetTerminal(): Promise<Terminal | undefined> {
+export async function resolveKillTargetTerminal(): Promise<Terminal | undefined> {
   const activeTerminal = window.activeTerminal;
   if (activeTerminal?.name.startsWith(SESSION_NAME_PREFIX)) return activeTerminal;
 
@@ -138,36 +168,19 @@ async function resolveKillTargetTerminal(): Promise<Terminal | undefined> {
 }
 
 export async function handleNewSession(): Promise<void> {
-  const { multiplexer, autoAttach, strategy, customName, attachIfExists } = getConfig();
-  const launcher = getLauncher(multiplexer);
-  const installed = await launcher.checkInstalled();
+  const config = getConfig();
+  const launcher = await checkMultiplexer(config);
+  if (!launcher) return;
 
-  if (!installed) {
-    showMissingMultiplexerNotification(multiplexer);
-    return;
-  }
+  const folderPath = getFolderPath() || cwd();
+  const baseName = getBaseSessionName(config.strategy, config.customName);
+  const sessionName = await resolveSessionName(baseName, launcher, config.autoAttach, config.attachIfExists);
 
-  const folderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
-  const baseName = getSessionName(strategy, {
-    workspaceName: workspace.name || undefined,
-    folderPath,
-    customName
-  });
-
-  let sessionName: string;
-  if (attachIfExists) {
-    const matchedSession = await findMatchingSession(baseName, launcher);
-    sessionName = matchedSession ?? (await getUniqueSessionName(baseName, launcher));
-  } else {
-    sessionName = await getUniqueSessionName(baseName, launcher);
-  }
-
-  const workspaceCwd = folderPath || cwd();
-  const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
+  const command = launcher.buildCommand(sessionName, folderPath, config.autoAttach);
 
   const terminal = window.createTerminal({
     name: `${SESSION_NAME_PREFIX}${sessionName}`,
-    cwd: workspaceCwd
+    cwd: folderPath
   });
 
   terminal.show();
@@ -187,4 +200,14 @@ async function showMissingMultiplexerNotification(multiplexer: string): Promise<
   if (result === `Don't show again`) {
     await codemuxConfig.update('suppressMissingNotification', true);
   }
+}
+
+let didWarnWindowsDisabled = false;
+
+function showWindowsDisabledNotification(): void {
+  if (didWarnWindowsDisabled) return;
+  didWarnWindowsDisabled = true;
+  window.showWarningMessage(
+    'CodeMux is disabled on Windows by default. Enable "codemux.windowsSupport" to attempt using it.'
+  );
 }
