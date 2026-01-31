@@ -1,20 +1,20 @@
 {
   "publisher": "jellydn",
-  "name": "code-mux",
-  "displayName": "code-mux",
+  "name": "vscode-mux",
+  "displayName": "vscode-mux",
   "version": "0.0.0",
   "private": true,
   "description": "Integrate VS Code terminal with tmux or zellij for seamless multiplexing",
   "author": "Dung Huynh Duc <anthonyfu117@hotmail.com>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/jellydn",
-  "homepage": "https://github.com/jellydn/code-mux#readme",
+  "homepage": "https://github.com/jellydn/vscode-mux#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jellydn/code-mux"
+    "url": "https://github.com/jellydn/vscode-mux"
   },
   "bugs": {
-    "url": "https://github.com/jellydn/code-mux/issues"
+    "url": "https://github.com/jellydn/vscode-mux/issues"
   },
   "sponsor": {
     "url": "https://github.com/sponsors/jellydn"
@@ -44,7 +44,7 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "code-mux",
+      "title": "vscode-mux",
       "properties": {
         "codemux.multiplexer": {
           "type": "string",
@@ -76,7 +76,7 @@
           {
             "id": "codemux",
             "configuration": {
-              "require": "jellydn.code-mux"
+              "require": "jellydn.vscode-mux"
             }
           }
         ],
@@ -84,7 +84,7 @@
           {
             "id": "codemux",
             "configuration": {
-              "require": "jellydn.code-mux"
+              "require": "jellydn.vscode-mux"
             }
           }
         ]
