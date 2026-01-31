@@ -41,14 +41,26 @@ CodeMux registers a custom terminal profile that automatically launches your pre
 
 ## Usage
 
-### Basic Setup
+CodeMux supports two ways to start a multiplexer session:
+
+### Option 1: Command-Only Mode (Recommended for quick setup)
+
+1. Install the extension
+2. Enable command-only mode in VS Code Settings:
+   - Search for "CodeMux: Use Command Mode"
+   - Check the box to enable
+3. Run the command:
+   - Open command palette (Cmd+Shift+P)
+   - Type "CodeMux: New Session"
+   - Press Enter
+
+### Option 2: Set as Default Terminal Profile
 
 1. Install the extension
 2. Set CodeMux as your default terminal profile:
    - Open VS Code Settings
    - Search for "Terminal > Profile: Osx"
    - Select "CodeMux" from the dropdown
-
 3. Open a new terminal—you're now in a tmux/zellij session!
 
 ### Session Naming Strategies
@@ -73,12 +85,13 @@ When opening the same workspace in multiple VS Code windows:
 
 <!-- configs -->
 
-| Key                           | Description                                              | Type      | Default       |
-| ----------------------------- | -------------------------------------------------------- | --------- | ------------- |
-| `codemux.multiplexer`         | Terminal multiplexer to use                              | `string`  | `"tmux"`      |
-| `codemux.sessionNameStrategy` | How to derive session name from workspace                | `string`  | `"workspace"` |
-| `codemux.customSessionName`   | Custom session name when sessionNameStrategy is 'custom' | `string`  | `""`          |
-| `codemux.autoAttach`          | Automatically attach to existing session                 | `boolean` | `true`        |
+| Key                           | Description                                                                                                              | Type      | Default       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------- | ------------- |
+| `codemux.multiplexer`         | Terminal multiplexer to use                                                                                              | `string`  | `"tmux"`      |
+| `codemux.sessionNameStrategy` | How to derive session name from workspace                                                                                | `string`  | `"workspace"` |
+| `codemux.customSessionName`   | Custom session name when sessionNameStrategy is 'custom'                                                                 | `string`  | `""`          |
+| `codemux.autoAttach`          | Automatically attach to existing session                                                                                 | `boolean` | `true`        |
+| `codemux.useCommandMode`      | Enable command-only mode. Use 'CodeMux: New Session' command from palette instead of setting as default terminal profile | `boolean` | `false`       |
 
 <!-- configs -->
 
@@ -89,6 +102,7 @@ When opening the same workspace in multiple VS Code windows:
 | Command               | Title                         |
 | --------------------- | ----------------------------- |
 | `codemux.killSession` | CodeMux: Kill Current Session |
+| `codemux.newSession`  | CodeMux: New Session          |
 
 <!-- commands -->
 
