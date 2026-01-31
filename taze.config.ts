@@ -1,5 +1,5 @@
-import { defineConfig } from 'taze'
+import { defineConfig } from 'taze';
 
 export default defineConfig({
-  exclude: ['@types/vscode'],
-})
+  exclude: ['@types/vscode']
+});
