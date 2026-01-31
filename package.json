@@ -4,7 +4,7 @@
   "displayName": "vscode-mux",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.28.2",
   "description": "Integrate VS Code terminal with tmux or zellij for seamless multiplexing",
   "author": "Dung Huynh Duc <dung@productsway.com>",
   "license": "MIT",
