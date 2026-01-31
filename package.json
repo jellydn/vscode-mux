@@ -2,7 +2,7 @@
   "publisher": "jellydn",
   "name": "vscode-mux",
   "displayName": "vscode-mux",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "description": "Integrate VS Code terminal with tmux or zellij for seamless multiplexing",
@@ -109,7 +109,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --external vscode --external reactive-vscode",
+    "build": "tsdown src/index.ts --external vscode",
     "dev": "nr build --watch --sourcemap",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
@@ -135,7 +135,7 @@
     "tsdown": "^0.20.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
-    "vitest": "^4.0.16",
+    "vitest": "^4.0.18",
     "vscode-ext-gen": "^1.5.1",
     "vsxpub": "^0.1.2"
   }

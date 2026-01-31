@@ -6,7 +6,7 @@ export default defineConfig({
   format: ['cjs'],
   shims: false,
   dts: false,
-  external: ['vscode', 'reactive-vscode'],
+  external: ['vscode'],
   hooks(hooks) {
     hooks.hookOnce('build:prepare', () => {
       execSync('nr update');

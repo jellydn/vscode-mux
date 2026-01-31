@@ -19,10 +19,12 @@ function resolveRaw(strategy: 'workspace' | 'folder' | 'custom', options: Sessio
 }
 
 function sanitizeSessionName(name: string): string {
-  return name
-    .replace(/[^a-z0-9-]/gi, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'session';
+  return (
+    name
+      .replace(/[^a-z0-9-]/gi, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '') || 'session'
+  );
 }
 
 export function getSessionName(strategy: 'workspace' | 'folder' | 'custom', options: SessionNameOptions): string {
