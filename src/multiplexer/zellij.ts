@@ -1,12 +1,13 @@
-import { run } from '../utils';
+import { run, shellEscape } from '../utils';
 import type { IMuxLauncher } from './types';
 
 export class ZellijLauncher implements IMuxLauncher {
   buildCommand(sessionName: string, _cwd: string, autoAttach: boolean): string {
+    const escapedName = shellEscape(sessionName);
     if (autoAttach) {
-      return `zellij attach ${sessionName} || zellij -s ${sessionName}`;
+      return `zellij attach ${escapedName} -c`;
     }
-    return `zellij -s ${sessionName}`;
+    return `zellij -s ${escapedName}`;
   }
 
   async listSessions(): Promise<string[]> {
