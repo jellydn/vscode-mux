@@ -1,12 +1,14 @@
 import type { IMuxLauncher } from './types';
-import { run } from '../utils';
+import { run, shellEscape } from '../utils';
 
 export class TmuxLauncher implements IMuxLauncher {
   buildCommand(sessionName: string, cwd: string, autoAttach: boolean): string {
+    const escapedName = shellEscape(sessionName);
+    const escapedCwd = shellEscape(cwd);
     if (autoAttach) {
-      return `tmux new-session -A -s ${sessionName} -c ${cwd}`;
+      return `tmux new-session -A -s ${escapedName} -c ${escapedCwd}`;
     }
-    return `tmux new-session -s ${sessionName} -c ${cwd}`;
+    return `tmux new-session -s ${escapedName} -c ${escapedCwd}`;
   }
 
   async listSessions(): Promise<string[]> {

@@ -20,3 +20,8 @@ export function run(cmd: string, args: string[]): Promise<string> {
     });
   });
 }
+
+export function shellEscape(value: string): string {
+  if (value === '') return "''";
+  return `'${value.replace(/'/g, `'"'"'`)}'`;
+}
