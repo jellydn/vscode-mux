@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { cwd, env } from 'node:process';
 import { TerminalProfile, window, workspace } from 'vscode';
 
@@ -8,6 +9,7 @@ import { logger } from './utils';
 export const SESSION_NAME_PREFIX = 'CodeMux: ';
 
 let suppressMissingNotification = false;
+const LOGIN_SHELLS = new Set(['bash', 'zsh', 'fish', 'sh']);
 
 interface CodemuxConfig {
   multiplexer: 'tmux' | 'zellij';
@@ -26,36 +28,50 @@ function getConfig(): CodemuxConfig {
   };
 }
 
+function getShellArgs(shellPath: string, command: string): string[] {
+  const shellName = basename(shellPath);
+  if (LOGIN_SHELLS.has(shellName)) return ['-l', '-c', command];
+  return ['-c', command];
+}
+
 export function createTerminalProfileProvider() {
   return {
     async provideTerminalProfile() {
-      const { multiplexer, autoAttach, strategy, customName } = getConfig();
-      const launcher = getLauncher(multiplexer);
-      const installed = await launcher.checkInstalled();
+      const shellPath = env.SHELL || '/bin/bash';
 
-      if (!installed) {
-        logger.info(`${multiplexer} not found, falling back to shell`);
-        showMissingMultiplexerNotification(multiplexer);
-        return new TerminalProfile({ shellPath: env.SHELL || '/bin/bash' });
+      try {
+        const { multiplexer, autoAttach, strategy, customName } = getConfig();
+        const launcher = getLauncher(multiplexer);
+        const installed = await launcher.checkInstalled();
+
+        if (!installed) {
+          logger.info(`${multiplexer} not found, falling back to shell`);
+          void showMissingMultiplexerNotification(multiplexer);
+          return new TerminalProfile({ shellPath });
+        }
+
+        const folderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
+        const baseName = getSessionName(strategy, {
+          workspaceName: workspace.name || undefined,
+          folderPath,
+          customName
+        });
+
+        const sessionName = await getUniqueSessionName(baseName, launcher);
+        const workspaceCwd = folderPath || cwd();
+        const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
+
+        return new TerminalProfile({
+          name: `${SESSION_NAME_PREFIX}${sessionName}`,
+          shellPath,
+          shellArgs: getShellArgs(shellPath, command),
+          cwd: workspaceCwd
+        });
+      } catch (error) {
+        logger.error('Failed to create terminal profile', error);
+        window.showErrorMessage('Failed to create CodeMux terminal profile.');
+        return new TerminalProfile({ shellPath });
       }
-
-      const folderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
-      const baseName = getSessionName(strategy, {
-        workspaceName: workspace.name || undefined,
-        folderPath,
-        customName
-      });
-
-      const sessionName = await getUniqueSessionName(baseName, launcher);
-      const workspaceCwd = folderPath || cwd();
-      const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
-
-      return new TerminalProfile({
-        name: `${SESSION_NAME_PREFIX}${sessionName}`,
-        shellPath: env.SHELL || '/bin/bash',
-        shellArgs: ['-c', command],
-        cwd: workspaceCwd
-      });
     }
   };
 }

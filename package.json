@@ -35,7 +35,9 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onTerminalProfile:codemux"
+    "onTerminalProfile:codemux",
+    "onCommand:codemux.killSession",
+    "onCommand:codemux.newSession"
   ],
   "contributes": {
     "commands": [
@@ -129,3 +131,4 @@
     "vsxpub": "^0.1.2"
   }
 }
+
