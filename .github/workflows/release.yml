@@ -24,17 +24,17 @@ jobs:
         with:
           bun-version: latest
 
-      - run: npx changelogithub
+      - run: bunx changelogithub
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - run: bun install
 
       - name: Generate .vsix file
-        run: nr ext:package
+        run: bun run ext:package
 
       - name: Publish Extension
-        run: npx vsxpub --no-dependencies
+        run: bun run ext:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VSCE_PAT: ${{secrets.VSCE_PAT}}
