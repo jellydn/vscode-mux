@@ -6,6 +6,7 @@ export default defineConfig({
   format: ['cjs'],
   shims: false,
   dts: false,
+  inlineOnly: false,
   external: ['vscode'],
   hooks(hooks) {
     hooks.hookOnce('build:prepare', () => {
