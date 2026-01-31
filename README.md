@@ -61,11 +61,11 @@ You can also use CodeMux commands from the command palette:
 
 By default, sessions are named after your workspace. You can customize this:
 
-| Strategy | Example Session Name |
-|----------|---------------------|
-| `workspace` | `my-project` (uses workspace name) |
-| `folder` | `src` (uses folder basename) |
-| `custom` | `dev-environment` (uses custom name) |
+| Strategy    | Example Session Name                 |
+| ----------- | ------------------------------------ |
+| `workspace` | `my-project` (uses workspace name)   |
+| `folder`    | `src` (uses folder basename)         |
+| `custom`    | `dev-environment` (uses custom name) |
 
 ### Multiple Windows
 
