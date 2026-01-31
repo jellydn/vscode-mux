@@ -1,132 +1,99 @@
 # AGENTS.md - CodeMux Development Guide
 
-## Project Overview
-
-CodeMux is a VS Code extension that integrates terminal multiplexers (tmux/zellij) into VS Code's terminal. Built with TypeScript, reactive-vscode, and tsdown.
+CodeMux is a VS Code extension integrating terminal multiplexers (tmux/zellij). Built with TypeScript, reactive-vscode, and tsdown.
 
 ## Build Commands
 
 | Command | Description |
 |---------|-------------|
-| `nr build` | Compile TypeScript with tsdown to `dist/index.cjs` |
-| `nr dev` | Build in watch mode with sourcemaps |
-| `nr typecheck` | Run TypeScript compiler without emitting (`tsc --noEmit`) |
-| `nr lint` | Lint all files with ESLint (`eslint .`) |
+| `nr build` | Compile TypeScript to `dist/index.cjs` |
+| `nr dev` | Watch mode with sourcemaps |
+| `nr typecheck` | TypeScript check without emit |
+| `nr lint` | Lint with Biome |
+| `nr format` | Format with Biome |
 | `nr test` | Run Vitest suite |
-| `nr test -- <pattern>` | Run tests matching pattern (e.g., `nr test -- should`) |
-| `nr test -- --reporter=verbose` | Run tests with verbose output |
-| `nr update` | Regenerate `src/generated/meta.ts` from package.json |
-| `nr ext:package` | Create VSIX package (`vsce package --no-dependencies`) |
-| `nr release` | Release with bumpp for version bump and git tag |
+| `nr test -- <pattern>` | Run tests matching pattern |
+| `nr test -- --reporter=verbose` | Verbose test output |
+| `nr update` | Regenerate `src/generated/meta.ts` |
+| `nr ext:package` | Create VSIX package |
+| `nr release` | Version bump and git tag |
 
-**Recommended workflow**: Run `nr typecheck && nr lint && nr test` before committing.
+**Recommended**: `nr typecheck && nr format && nr lint && nr test`
 
-## Code Style Guidelines
-
-### General Principles
-
-- Follow the "tidy first" approach: small, safe changes before features
-- Write self-documenting code with meaningful names
-- Separate tidying commits from behavior changes
+## Code Style
 
 ### TypeScript
+- Strict mode enabled with `strictNullChecks`
+- Explicit types for parameters and return values
+- Prefer interfaces over type aliases for objects
+- Use `unknown` instead of `any`
 
-- **Strict mode enabled**: All strict compiler options are on
-- **strictNullChecks**: Always handle null/undefined explicitly
-- Use explicit types for function parameters and return values
-- Prefer interfaces over type aliases for object shapes
-- Use `unknown` instead of `any` when type is uncertain
-
-### Imports
-
+### Imports (Biome enforces ordering)
 ```typescript
-// Standard import order (enforced by @antfu/eslint-config)
 import { defineExtension } from 'reactive-vscode' // external
-import { window } from 'vscode' // vscode API
-import { config } from './config' // internal relative
-import { logger } from './utils' // internal relative
+import { window } from 'vscode'                   // vscode API
+import { config } from './config'                  // internal
 ```
 
-- Use named imports from reactive-vscode for tree-shaking
-- Group imports: external → vscode → internal relative
-- ESLint handles import ordering automatically
-
 ### Naming Conventions
-
 | Pattern | Convention | Example |
 |---------|------------|---------|
-| Variables/functions | camelCase | `sessionName`, `getWorkspaceFolder` |
-| Constants | UPPER_SNAKE_CASE (if truly constant) | `DEFAULT_MULTIPLEXER` |
-| Types/interfaces | PascalCase | `SessionConfig`, `IMuxLauncher` |
-| Files | kebab-case | `session-utils.ts`, `config-handler.ts` |
+| Variables/functions | camelCase | `sessionName` |
+| Constants | UPPER_SNAKE_CASE | `DEFAULT_MUX` |
+| Types/interfaces | PascalCase | `SessionConfig` |
+| Files | kebab-case | `session-utils.ts` |
 | VS Code commands | kebab-case | `codemux.killSession` |
 
 ### Error Handling
-
 ```typescript
-// Use try/catch with logger
-try {
-  await launchSession()
-}
+try { await launchSession() }
 catch (error) {
-  logger.error('Failed to launch session', error)
+  logger.error('Failed to launch', error)
   window.showErrorMessage('Failed to launch session')
 }
-// Never swallow errors silently
-// Always provide user feedback for VS Code operations
 ```
-
-- Use the `logger` from `src/utils.ts` for consistent logging
-- Show user-friendly notifications via `vscode.window` for errors
-- Validate all user inputs and configuration values
+- Use `logger` from `src/utils.ts`
+- Always show user feedback for VS Code operations
+- Never swallow errors silently
 
 ### VS Code Extension Patterns
-
 ```typescript
-// Use reactive-vscode for declarative extension definition
-import { defineExtension } from 'reactives-vscode'
+import { defineExtension } from 'reactive-vscode'
+import { defineConfig } from './config'
 
 const { activate, deactivate } = defineExtension(() => {
-  // Extension activation logic
-  window.showInformationMessage('CodeMux activated')
+  // Extension logic
 })
-
 export { activate, deactivate }
 ```
-
-- Use `defineExtension` for cleaner extension registration
-- Use `defineConfig` from `src/config.ts` for settings management
-- Activate on `onStartupFinished` for minimal latency
+- Use `defineExtension` for registration
+- Use `defineConfig` for settings
+- Activate on `onStartupFinished`
 
 ### Formatting
-
-- **Tool**: ESLint with @antfu/eslint-config (stylistic rules disabled in IDE)
-- **Prettier**: Disabled (`"prettier.enable": false`)
-- **Format on save**: Disabled; use `source.fixAll.eslint` via code actions
-- Configure IDE to auto-fix ESLint issues on save (`.vscode/settings.json`)
+- **Tool**: Biome v2 (linter + formatter, Prettier disabled)
+- Enable format on save in IDE
 
 ## Project Structure
 
 ```
 src/
-├── index.ts          # Extension entry point (activate/deactivate)
+├── index.ts          # Extension entry (activate/deactivate)
 ├── config.ts         # Configuration via defineConfig
 ├── utils.ts          # Logger utility
 └── generated/
-    └── meta.ts       # Auto-generated from package.json (run `nr update`)
+    └── meta.ts       # Auto-generated (run `nr update`)
 test/
-└── index.test.ts     # Vitest test suite
+└── index.test.ts     # Vitest suite
 ```
 
 ## Testing
 
-- **Framework**: Vitest
-- **Pattern**: Use `describe` and `it`/`test` blocks
-- **Assertions**: Use Vitest's `expect`
+- **Framework**: Vitest with `describe`/`it`/`test` blocks
+- **Assertions**: Vitest's `expect`
 
 ```typescript
 import { describe, expect, it } from 'vitest'
-
 describe('session utils', () => {
   it('should sanitize session name', () => {
     expect(sanitizeSessionName('my project')).toBe('my-project')
@@ -136,37 +103,32 @@ describe('session utils', () => {
 
 ## Common Tasks
 
-### Add new configuration setting
+### Add configuration
+1. Add to `package.json` → `contributes.configuration.properties`
+2. Run `nr update`
+3. Use `config` from `src/config.ts`
 
-1. Add to `package.json` `contributes.configuration.properties`
-2. Run `nr update` to regenerate `src/generated/meta.ts`
-3. Use `config` from `src/config.ts` to read value
+### Add command
+1. Add to `package.json` → `contributes.commands`
+2. Register in `src/index.ts` via `commands.registerCommand`
+3. Export handler for testing
 
-### Add new command
-
-1. Add to `package.json` `contributes.commands`
-2. Register in `src/index.ts` using `commands.registerCommand`
-3. Export command handler for testing
-
-### Debug extension
-
-1. Press F5 in VS Code to launch extension host
-2. Extension will reload on rebuild (`nr dev`)
-3. Check "Debug Console" for logs
+### Debug
+Press F5 to launch extension host; rebuild with `nr dev`
 
 ## Dependencies
 
 | Package | Purpose |
 |---------|---------|
-| `reactive-vscode` | Declarative VS Code extension API |
+| `reactive-vscode` | Declarative VS Code API |
 | `tsdown` | TypeScript bundler |
 | `vitest` | Testing framework |
-| `@antfu/eslint-config` | Linting and formatting |
+| `@biomejs/biome` | Linting + formatting |
 | `@antfu/ni` | Script runner (`nr`) |
 
 ## Key Files
 
-- `package.json:46-58` - npm scripts definition
-- `tsconfig.json` - TypeScript configuration
-- `eslint.config.mjs` - ESLint configuration
-- `.vscode/settings.json` - IDE settings for this project
+- `package.json:110-122` - npm scripts
+- `tsconfig.json` - TypeScript config
+- `biome.json` - Biome config
+- `.vscode/settings.json` - IDE settings
