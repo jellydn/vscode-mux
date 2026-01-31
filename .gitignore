@@ -12,3 +12,4 @@ node_modules
 temp
 src/generated
 .env
+.claude/settings.local.json
