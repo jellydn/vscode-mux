@@ -1,12 +1,12 @@
-import type { IMuxLauncher } from './types';
 import { run } from '../utils';
+import type { IMuxLauncher } from './types';
 
 export class ZellijLauncher implements IMuxLauncher {
-  buildCommand(sessionName: string, cwd: string, autoAttach: boolean): string {
+  buildCommand(sessionName: string, _cwd: string, autoAttach: boolean): string {
     if (autoAttach) {
-      return `zellij attach ${sessionName} || zellij -s ${sessionName} -c ${cwd}`;
+      return `zellij attach ${sessionName} || zellij -s ${sessionName}`;
     }
-    return `zellij -s ${sessionName} -c ${cwd}`;
+    return `zellij -s ${sessionName}`;
   }
 
   async listSessions(): Promise<string[]> {

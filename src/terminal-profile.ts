@@ -10,12 +10,15 @@ export const SESSION_NAME_PREFIX = 'CodeMux: ';
 
 let suppressMissingNotification = false;
 const LOGIN_SHELLS = new Set(['bash', 'zsh', 'fish', 'sh']);
+let cachedSessionName: string | undefined;
+let cachedBaseName: string | undefined;
 
 interface CodemuxConfig {
   multiplexer: 'tmux' | 'zellij';
   autoAttach: boolean;
   strategy: 'workspace' | 'folder' | 'custom';
   customName: string;
+  useCommandMode: boolean;
 }
 
 function getConfig(): CodemuxConfig {
@@ -24,7 +27,8 @@ function getConfig(): CodemuxConfig {
     multiplexer: codemuxConfig.get('multiplexer', 'tmux'),
     autoAttach: codemuxConfig.get('autoAttach', true),
     strategy: codemuxConfig.get('sessionNameStrategy', 'workspace'),
-    customName: codemuxConfig.get('customSessionName', '')
+    customName: codemuxConfig.get('customSessionName', ''),
+    useCommandMode: codemuxConfig.get('useCommandMode', false)
   };
 }
 
@@ -34,13 +38,30 @@ function getShellArgs(shellPath: string, command: string): string[] {
   return ['-c', command];
 }
 
+async function resolveSessionName(
+  baseName: string,
+  launcher: ReturnType<typeof getLauncher>,
+  autoAttach: boolean
+): Promise<string> {
+  if (!autoAttach) return getUniqueSessionName(baseName, launcher);
+
+  if (cachedSessionName && cachedBaseName === baseName) return cachedSessionName;
+
+  const uniqueName = await getUniqueSessionName(baseName, launcher);
+  cachedSessionName = uniqueName;
+  cachedBaseName = baseName;
+  return uniqueName;
+}
+
 export function createTerminalProfileProvider() {
   return {
     async provideTerminalProfile() {
       const shellPath = env.SHELL || '/bin/bash';
 
       try {
-        const { multiplexer, autoAttach, strategy, customName } = getConfig();
+        const { multiplexer, autoAttach, strategy, customName, useCommandMode } = getConfig();
+        if (useCommandMode) return new TerminalProfile({ shellPath });
+
         const launcher = getLauncher(multiplexer);
         const installed = await launcher.checkInstalled();
 
@@ -57,7 +78,7 @@ export function createTerminalProfileProvider() {
           customName
         });
 
-        const sessionName = await getUniqueSessionName(baseName, launcher);
+        const sessionName = await resolveSessionName(baseName, launcher, autoAttach);
         const workspaceCwd = folderPath || cwd();
         const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
 
@@ -119,7 +140,7 @@ export async function handleNewSession(): Promise<void> {
     customName
   });
 
-  const sessionName = await getUniqueSessionName(baseName, launcher);
+  const sessionName = await resolveSessionName(baseName, launcher, autoAttach);
   const workspaceCwd = folderPath || cwd();
   const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
 
