@@ -105,7 +105,7 @@ When opening the same workspace in multiple VS Code windows:
 ## Requirements
 
 - **VS Code**: 1.97.0 or higher
-- **Operating System**: macOS or Linux (Windows is not supported)
+- **Operating System**: macOS or Linux (Windows is opt-in via `codemux.windowsSupport`)
 - **Multiplexer**: tmux or zellij must be installed and available in your PATH
 
 ### Installing tmux
@@ -137,7 +137,7 @@ cargo install zellij
 
 The following features are explicitly out of scope:
 
-- **Windows support**: Only macOS and Linux are supported
+- **Windows support**: Disabled by default; enable `codemux.windowsSupport` if you want to try it (e.g. with WSL or compatible shells)
 - **Pane/layout management**: CodeMux doesn't manage panes within tmux/zellij—use their native features
 - **Editor sync**: VS Code editor splits don't sync with multiplexer panes
 - **Multi-root workspaces**: Uses the first folder or workspace name
@@ -149,7 +149,7 @@ The following features are explicitly out of scope:
 
 If the multiplexer isn't launching:
 
-1. Check that tmux or zellij is installed: `which tmux` or `which zellij`
+1. Check that tmux or zellij is installed: `which tmux` / `which zellij` (or `where tmux` / `where zellij` on Windows)
 2. Verify the `codemux.multiplexer` setting matches your installed tool
 3. Check VS Code's Output panel for CodeMux error messages
 
@@ -160,14 +160,20 @@ If you see "session already exists" errors:
 - Set `codemux.autoAttach` to `false` to always create new sessions
 - Or manually kill the old session: `tmux kill-session -t <name>` / `zellij kill-session <name>`
 
-## Sponsors
+## Author
 
-<p align="center">
-  <a href="https://cdn.jsdelivr.net/gh/jellydn/static/sponsors.svg">
-    <img src='https://cdn.jsdelivr.net/gh/jellydn/static/sponsors.png'/>
-  </a>
-</p>
+👤 **Huynh Duc Dung**
+
+- Website: [https://productsway.com/](https://productsway.com/)
+- Twitter: [@jellydn](https://twitter.com/jellydn)
+- GitHub: [@jellydn](https://github.com/jellydn)
+
+## Show your support
+
+If this project has been helpful, please give it a ⭐️.
+
+[![kofi](https://img.shields.io/badge/Ko--fi-F16061?style=flat&logo=ko-fi&logoColor=white)](https://ko-fi.com/dunghd) [![paypal](https://img.shields.io/badge/PayPal-00457C?style=flat&logo=paypal&logoColor=white)](https://paypal.me/dunghd) [![buymeacoffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/dunghd)
 
 ## License
 
-[MIT](./LICENSE.md) License © 2022 [Dung Huynh Duc](https://github.com/jellydn)
+[MIT](./LICENSE.md) License © 2026 
