@@ -83,10 +83,15 @@
           "default": true,
           "description": "Automatically attach to existing session"
         },
-        "codemux.useCommandMode": {
+        "codemux.attachIfExists": {
+          "type": "boolean",
+          "default": true,
+          "description": "When creating a new session, attach to existing session if one matches the workspace name"
+        },
+        "codemux.suppressMissingNotification": {
           "type": "boolean",
           "default": false,
-          "description": "Enable command-only mode. Use 'CodeMux: New Session' command from palette instead of setting as default terminal profile"
+          "description": "Suppress notification when multiplexer is not installed"
         }
       }
     },
@@ -131,4 +136,3 @@
     "vsxpub": "^0.1.2"
   }
 }
-

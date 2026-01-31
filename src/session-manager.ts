@@ -1,5 +1,5 @@
-import type { IMuxLauncher } from './multiplexer';
 import { basename } from 'node:path';
+import type { IMuxLauncher } from './multiplexer';
 
 export interface SessionNameOptions {
   workspaceName: string | undefined;
@@ -39,4 +39,9 @@ export async function getUniqueSessionName(baseName: string, launcher: IMuxLaunc
   while (sessions.includes(`${baseName}-${suffix}`)) suffix++;
 
   return `${baseName}-${suffix}`;
+}
+
+export async function findMatchingSession(baseName: string, launcher: IMuxLauncher): Promise<string | null> {
+  const sessions = await launcher.listSessions();
+  return sessions.includes(baseName) ? baseName : null;
 }

@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { IMuxLauncher } from '../src/multiplexer/types';
-import { getSessionName, getUniqueSessionName, type SessionNameOptions } from '../src/session-manager';
+import {
+  findMatchingSession,
+  getSessionName,
+  getUniqueSessionName,
+  type SessionNameOptions
+} from '../src/session-manager';
 
 // ---------------------------------------------------------------------------
 // getSessionName (covers sanitizeSessionName behavior)
@@ -154,5 +159,43 @@ describe('getUniqueSessionName', () => {
     const launcher = createMockLauncher(['myapp']);
     await getUniqueSessionName('myapp', launcher);
     expect(launcher.listSessions).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// findMatchingSession
+// ---------------------------------------------------------------------------
+describe('findMatchingSession', () => {
+  function createMockLauncher(sessions: string[]): IMuxLauncher {
+    return {
+      buildCommand: vi.fn(),
+      listSessions: vi.fn().mockResolvedValue(sessions),
+      killSession: vi.fn(),
+      checkInstalled: vi.fn()
+    };
+  }
+
+  it('returns the base name when session exists', async () => {
+    const launcher = createMockLauncher(['myapp', 'other-session']);
+    const result = await findMatchingSession('myapp', launcher);
+    expect(result).toBe('myapp');
+  });
+
+  it('returns null when session does not exist', async () => {
+    const launcher = createMockLauncher(['other-session', 'another-one']);
+    const result = await findMatchingSession('myapp', launcher);
+    expect(result).toBeNull();
+  });
+
+  it('does not match session with similar name but different suffix', async () => {
+    const launcher = createMockLauncher(['myapp-2', 'myapp-3']);
+    const result = await findMatchingSession('myapp', launcher);
+    expect(result).toBeNull();
+  });
+
+  it('returns exact match even when numbered variants exist', async () => {
+    const launcher = createMockLauncher(['myapp', 'myapp-2', 'myapp-3']);
+    const result = await findMatchingSession('myapp', launcher);
+    expect(result).toBe('myapp');
   });
 });
