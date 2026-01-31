@@ -1,6 +1,11 @@
-# code-mux
+# vscode-mux
 
-<a href="https://marketplace.visualstudio.com/items?itemName=jellydn.code-mux" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/jellydn.code-mux.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
+<p align="center">
+  <img src="res/icon.png" width="128" height="128" alt="CodeMux Logo">
+</p>
+
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=jellydn.vscode-mux" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/jellydn.vscode-mux.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
 <a href="https://kermanx.github.io/reactive-vscode/" target="__blank"><img src="https://img.shields.io/badge/made_with-reactive--vscode-%23007ACC?style=flat&labelColor=%23229863"  alt="Made with reactive-vscode" /></a>
 
 Integrate VS Code's terminal with tmux or zellij. Opening a terminal automatically attaches to (or creates) a multiplexer session using the current workspace name.
@@ -17,16 +22,11 @@ Integrate VS Code's terminal with tmux or zellij. Opening a terminal automatical
 
 ## Configuration
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `codemux.multiplexer` | `tmux` | Terminal multiplexer to use (`tmux` or `zellij`) |
-| `codemux.sessionNameStrategy` | `workspace` | How to derive session name (`workspace`, `folder`, `custom`) |
-| `codemux.customSessionName` | `""` | Custom session name when strategy is `custom` |
-| `codemux.autoAttach` | `true` | Automatically attach to existing session |
+<!-- configs -->
 
 ## Commands
 
-- `codemux.killSession` - Kill the current multiplexer session
+<!-- commands -->
 
 ## Requirements
 
