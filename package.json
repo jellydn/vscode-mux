@@ -5,7 +5,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Integrate VS Code terminal with tmux or zellij for seamless multiplexing",
-  "author": "Dung Huynh Duc <anthonyfu117@hotmail.com>",
+  "author": "Dung Huynh Duc <dung@productsway.com>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/jellydn",
   "homepage": "https://github.com/jellydn/vscode-mux#readme",
@@ -40,6 +40,10 @@
       {
         "command": "codemux.killSession",
         "title": "CodeMux: Kill Current Session"
+      },
+      {
+        "command": "codemux.newSession",
+        "title": "CodeMux: New Session"
       }
     ],
     "configuration": {
@@ -48,13 +52,20 @@
       "properties": {
         "codemux.multiplexer": {
           "type": "string",
-          "enum": ["tmux", "zellij"],
+          "enum": [
+            "tmux",
+            "zellij"
+          ],
           "default": "tmux",
           "description": "Terminal multiplexer to use"
         },
         "codemux.sessionNameStrategy": {
           "type": "string",
-          "enum": ["workspace", "folder", "custom"],
+          "enum": [
+            "workspace",
+            "folder",
+            "custom"
+          ],
           "default": "workspace",
           "description": "How to derive session name from workspace"
         },
@@ -67,6 +78,11 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically attach to existing session"
+        },
+        "codemux.useCommandMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable command-only mode. Use 'CodeMux: New Session' command from palette instead of setting as default terminal profile"
         }
       }
     },
@@ -92,11 +108,12 @@
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --external vscode",
+    "build": "tsdown src/index.ts --external vscode --external reactive-vscode",
     "dev": "nr build --watch --sourcemap",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
-    "lint": "eslint .",
+    "lint": "biome lint src --",
+    "format": "biome format src --write",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "vscode:prepublish": "nr build",
@@ -105,13 +122,12 @@
     "ext:publish": "vsxpub --no-dependencies"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^6.7.3",
     "@antfu/ni": "^28.0.0",
+    "@biomejs/biome": "^2.3.13",
     "@types/node": "^25.0.3",
     "@types/vscode": "^1.97.0",
     "@vscode/vsce": "^3.7.1",
     "bumpp": "^10.3.2",
-    "eslint": "^9.39.2",
     "ovsx": "^0.10.7",
     "reactive-vscode": "^1.0.0-beta.2",
     "taze": "^19.9.2",
