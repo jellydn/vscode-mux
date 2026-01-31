@@ -92,6 +92,15 @@
           "type": "boolean",
           "default": false,
           "description": "Suppress notification when multiplexer is not installed"
+        },
+        "codemux.windowsSupport": {
+          "type": "string",
+          "enum": [
+            "disabled",
+            "enabled"
+          ],
+          "default": "disabled",
+          "description": "Allow CodeMux to attempt running on Windows (useful with WSL or compatible shells)"
         }
       }
     },

@@ -87,6 +87,7 @@ When opening the same workspace in multiple VS Code windows:
 | `codemux.autoAttach`                  | Automatically attach to existing session                                                  | `boolean` | `true`        |
 | `codemux.attachIfExists`              | When creating a new session, attach to existing session if one matches the workspace name | `boolean` | `true`        |
 | `codemux.suppressMissingNotification` | Suppress notification when multiplexer is not installed                                   | `boolean` | `false`       |
+| `codemux.windowsSupport`              | Allow CodeMux to attempt running on Windows (useful with WSL or compatible shells)        | `string`  | `"disabled"`  |
 
 <!-- configs -->
 
