@@ -9,15 +9,27 @@ export const SESSION_NAME_PREFIX = 'CodeMux: ';
 
 let suppressMissingNotification = false;
 
+interface CodemuxConfig {
+  multiplexer: 'tmux' | 'zellij';
+  autoAttach: boolean;
+  strategy: 'workspace' | 'folder' | 'custom';
+  customName: string;
+}
+
+function getConfig(): CodemuxConfig {
+  const codemuxConfig = workspace.getConfiguration('codemux');
+  return {
+    multiplexer: codemuxConfig.get('multiplexer', 'tmux'),
+    autoAttach: codemuxConfig.get('autoAttach', true),
+    strategy: codemuxConfig.get('sessionNameStrategy', 'workspace'),
+    customName: codemuxConfig.get('customSessionName', '')
+  };
+}
+
 export function createTerminalProfileProvider() {
   return {
     async provideTerminalProfile() {
-      const codemuxConfig = workspace.getConfiguration('codemux');
-      const multiplexer = codemuxConfig.get<'tmux' | 'zellij'>('multiplexer', 'tmux')!;
-      const autoAttach = codemuxConfig.get<boolean>('autoAttach', true)!;
-      const strategy = codemuxConfig.get<'workspace' | 'folder' | 'custom'>('sessionNameStrategy', 'workspace')!;
-      const customName = codemuxConfig.get<string>('customSessionName', '')!;
-
+      const { multiplexer, autoAttach, strategy, customName } = getConfig();
       const launcher = getLauncher(multiplexer);
       const installed = await launcher.checkInstalled();
 
@@ -27,9 +39,7 @@ export function createTerminalProfileProvider() {
         return new TerminalProfile({ shellPath: env.SHELL || '/bin/bash' });
       }
 
-      const workspaceFolders = workspace.workspaceFolders;
-      const folderPath = workspaceFolders?.[0]?.uri.fsPath;
-
+      const folderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
       const baseName = getSessionName(strategy, {
         workspaceName: workspace.name || undefined,
         folderPath,
@@ -39,11 +49,10 @@ export function createTerminalProfileProvider() {
       const sessionName = await getUniqueSessionName(baseName, launcher);
       const workspaceCwd = folderPath || cwd();
       const command = launcher.buildCommand(sessionName, workspaceCwd, autoAttach);
-      const shell = env.SHELL || '/bin/bash';
 
       return new TerminalProfile({
         name: `${SESSION_NAME_PREFIX}${sessionName}`,
-        shellPath: shell,
+        shellPath: env.SHELL || '/bin/bash',
         shellArgs: ['-c', command],
         cwd: workspaceCwd
       });
@@ -64,8 +73,7 @@ export async function handleKillSession(): Promise<void> {
   }
 
   const sessionName = terminal.name.slice(SESSION_NAME_PREFIX.length);
-  const codemuxConfig = workspace.getConfiguration('codemux');
-  const multiplexer = codemuxConfig.get<'tmux' | 'zellij'>('multiplexer', 'tmux')!;
+  const { multiplexer } = getConfig();
   const launcher = getLauncher(multiplexer);
 
   try {
@@ -79,12 +87,7 @@ export async function handleKillSession(): Promise<void> {
 }
 
 export async function handleNewSession(): Promise<void> {
-  const codemuxConfig = workspace.getConfiguration('codemux');
-  const multiplexer = codemuxConfig.get<'tmux' | 'zellij'>('multiplexer', 'tmux')!;
-  const autoAttach = codemuxConfig.get<boolean>('autoAttach', true)!;
-  const strategy = codemuxConfig.get<'workspace' | 'folder' | 'custom'>('sessionNameStrategy', 'workspace')!;
-  const customName = codemuxConfig.get<string>('customSessionName', '')!;
-
+  const { multiplexer, autoAttach, strategy, customName } = getConfig();
   const launcher = getLauncher(multiplexer);
   const installed = await launcher.checkInstalled();
 
@@ -93,9 +96,7 @@ export async function handleNewSession(): Promise<void> {
     return;
   }
 
-  const workspaceFolders = workspace.workspaceFolders;
-  const folderPath = workspaceFolders?.[0]?.uri.fsPath;
-
+  const folderPath = workspace.workspaceFolders?.[0]?.uri.fsPath;
   const baseName = getSessionName(strategy, {
     workspaceName: workspace.name || undefined,
     folderPath,
