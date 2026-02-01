@@ -2,7 +2,7 @@
   "publisher": "jellydn",
   "name": "vscode-mux",
   "displayName": "vscode-mux",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "packageManager": "bun@1.x",
   "description": "Integrate VS Code terminal with tmux or zellij for seamless multiplexing",
