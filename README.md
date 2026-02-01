@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="https://marketplace.visualstudio.com/items?itemName=jellydn.vscode-mux" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/jellydn.vscode-mux.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
+  <a href="https://open-vsx.org/extension/jellydn/vscode-mux" target="__blank"><img src="https://img.shields.io/open-vsx/v/jellydn/vscode-mux?color=eee&amp;label=Open%20VSX&logo=open-vsx" alt="Open VSX Version" /></a>
   <a href="https://kermanx.github.io/reactive-vscode/" target="__blank"><img src="https://img.shields.io/badge/made_with-reactive--vscode-%23007ACC?style=flat&labelColor=%23229863"  alt="Made with reactive-vscode" /></a>
 </p>
 
@@ -20,6 +21,8 @@ If you rely on tmux or zellij for terminal multiplexing, VS Code's default termi
 - **Repetitive tasks**: Repeating this setup across projects is tedious
 
 CodeMux solves this by making tmux/zellij the default terminal experience in VS Code—one workspace, one persistent session.
+
+[![Codemux - Settings](https://i.gyazo.com/758e3521de6079f91d05b4b900b05573.gif)](https://gyazo.com/758e3521de6079f91d05b4b900b05573)
 
 [![Codemux - New session](https://i.gyazo.com/c8c8e2bfa3dd22757c2c6842078ff617.gif)](https://gyazo.com/c8c8e2bfa3dd22757c2c6842078ff617)
 
@@ -51,6 +54,8 @@ CodeMux registers a custom terminal profile that automatically launches your pre
    - Search for "Terminal > Profile: Osx" (or your OS equivalent)
    - Select "CodeMux" from the dropdown
 3. Open a new terminal—you're now in a tmux/zellij session!
+
+[![Codemux - Set default teminal](https://i.gyazo.com/a0bca807f66a39e30d7750c64b63e0c6.gif)](https://gyazo.com/a0bca807f66a39e30d7750c64b63e0c6)
 
 ### Using CodeMux Commands
 
