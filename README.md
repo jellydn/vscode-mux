@@ -21,6 +21,8 @@ If you rely on tmux or zellij for terminal multiplexing, VS Code's default termi
 
 CodeMux solves this by making tmux/zellij the default terminal experience in VS Code—one workspace, one persistent session.
 
+[![Codemux - New session](https://i.gyazo.com/c8c8e2bfa3dd22757c2c6842078ff617.gif)](https://gyazo.com/c8c8e2bfa3dd22757c2c6842078ff617)
+
 ## How It Works
 
 CodeMux registers a custom terminal profile that automatically launches your preferred multiplexer when you open a new terminal:
@@ -176,4 +178,4 @@ If this project has been helpful, please give it a ⭐️.
 
 ## License
 
-[MIT](./LICENSE.md) License © 2026 
+[MIT](./LICENSE.md) License © 2026
